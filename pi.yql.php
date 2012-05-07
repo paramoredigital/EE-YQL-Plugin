@@ -69,6 +69,7 @@ class Yql {
 		// Fetch params
 		$sql = $this->EE->TMPL->fetch_param('sql', FALSE);
 		$cache_timeout = $this->EE->TMPL->fetch_param('cache_timeout', 0);
+		$debug = $this->EE->TMPL->fetch_param('debug', 'no');
 		$params = $this->_fetch_colon_params('param');
 		
 		// No SQL, no results
@@ -88,6 +89,12 @@ class Yql {
 
 			// Find cache?
 			if (FALSE !== $cached_results) {
+				
+				if ($debug == 'yes') {
+					var_dump('CACHED RESULTS', $sql, $params, $cached_results);
+					exit;
+				}
+
 				$cached_results = unserialize($cached_results);
 				return $this->_parse_results(array($cached_results), $this->EE->TMPL->tagdata);
 			}
@@ -98,13 +105,16 @@ class Yql {
 		$this->EE->load->library('yql_library');
 		$results = $this->EE->yql_library->run_query($sql, $params);
 
-		// exit($this->variable_to_html($results));
-
 		// Set the cache
 		if ($cache_timeout > 0) {
 			$this->EE->load->library('caching_library');
 			$cache_value = serialize($results);
 			$this->EE->caching_library->set_cache($cache_key, $cache_value, Yql::CACHE_GROUP);
+		}
+
+		if ($debug == 'yes') {
+			var_dump('FETCHED RESULTS', $sql, $params, $results);
+			exit;
 		}
 
 		if (empty($results)) {
@@ -138,7 +148,7 @@ class Yql {
 				}
 			}
 		}
-
+		
 		return $this->EE->TMPL->parse_variables($tagdata, $results);
 
 	}
