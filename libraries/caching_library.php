@@ -45,6 +45,10 @@ class Caching_library {
 	public function set_cache($cache_key, $cache_value, $cache_group) {
 
 		$cache_file_path = $this->_get_cache_path($cache_key, $cache_group);
+
+		if (!file_exists(dirname($cache_file_path))) {
+			@mkdir(dirname($cache_file_path), 0777, TRUE);
+		}
 		
 		if (!is_writable(dirname($cache_file_path))) {
 			return FALSE;
@@ -100,7 +104,7 @@ class Caching_library {
 	 * @author Jesse Bunch
 	*/
 	protected function _get_cache_path($filename, $cache_group) {
-		return APPPATH.'cache/'.$filename.'';
+		return APPPATH.'cache/'.$cache_group.'/'.$filename.'';
 	}
 	
 }
