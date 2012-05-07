@@ -51,6 +51,7 @@ class Caching_library {
 		}
 		
 		if (!is_writable(dirname($cache_file_path))) {
+			$this->EE->logger->developer('YQL plugin: Couldn\'t set the cache file because the cache directory is not writeable.', TRUE);
 			return FALSE;
 		}
 
