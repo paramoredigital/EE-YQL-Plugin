@@ -24,7 +24,7 @@
  * @link		http://paramore.is/
  */
 
-class Yql {
+class Caching_library {
     
 	/**
 	 * Constructor
@@ -38,12 +38,13 @@ class Yql {
 	 * Writes the value to the cache file
 	 * @param $cache_key The cache file name. Should resemble a filename
 	 * @param $cache_value The value to write to cache
+	 * @param $cache_group The folder to place the cache file in. Usually your addon short name.
 	 * @return bool
 	 * @author Jesse Bunch
 	*/
-	public function set_cache($cache_key, $cache_value) {
+	public function set_cache($cache_key, $cache_value, $cache_group) {
 
-		$cache_file_path = $this->_get_cache_path($cache_key);
+		$cache_file_path = $this->_get_cache_path($cache_key, $cache_group);
 		
 		if (!is_writable(dirname($cache_file_path))) {
 			return FALSE;
@@ -60,13 +61,14 @@ class Yql {
 	/**
 	 * Attempts to read data from the cache
 	 * @param $cache_key The cache file name. Should resemble a filename
+	 * @param $cache_group The folder to place the cache file in. Usually your addon short name.
 	 * @param $cache_timeout The time in seconds that the cache should be valid
 	 * @return string|bool 
 	 * @author Jesse Bunch
 	*/
-	public function read_cache($cache_key, $cache_timeout = 0) {
+	public function read_cache($cache_key, $cache_group, $cache_timeout = 0) {
 
-		$cache_file_path = $this->_get_cache_path($cache_key);
+		$cache_file_path = $this->_get_cache_path($cache_key, $cache_group);
 
 		// Exists?
 		if (!file_exists($cache_file_path)) {
@@ -93,11 +95,12 @@ class Yql {
 	/**
 	 * Returns the path to the cache file
 	 * @param $filename
+	 * @param $cache_group The folder to place the cache file in. Usually your addon short name.
 	 * @return string
 	 * @author Jesse Bunch
 	*/
-	protected function _get_cache_path($filename) {
-		return APPPATH.'cache/'.$filename.'/';
+	protected function _get_cache_path($filename, $cache_group) {
+		return APPPATH.'cache/'.$filename.'';
 	}
 	
 }

@@ -36,6 +36,8 @@ $plugin_info = array(
 
 class Yql {
 
+	const CACHE_GROUP = 'ee_yql';
+
 	/**
 	 * Return data for the constructor
 	 * @author Jesse Bunch
@@ -76,13 +78,13 @@ class Yql {
 		// Fetch Cache
 		if ($cache_timeout > 0) {
 			
-			$this->EE->load->library('cache_library');
-			$cached_results = $this->EE->cache_library->read_cache($cache_key);
-			
+			$this->EE->load->library('caching_library');
+			$cached_results = $this->EE->caching_library->read_cache($cache_key, Yql::CACHE_GROUP, $cache_timeout);
+
 			// Find cache?
 			if (FALSE !== $cached_results) {
 				$cached_results = unserialize($cached_results);
-				return $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $cached_results);
+				return $this->_parse_results(array($cached_results), $this->EE->TMPL->tagdata);
 			}
 
 		}
@@ -95,53 +97,38 @@ class Yql {
 
 		// Set the cache
 		if ($cache_timeout > 0) {
-			$this->EE->load->library('cache_library');
+			$this->EE->load->library('caching_library');
 			$cache_value = serialize($results);
-			$this->EE->cache_library->set_cache($cache_key, $cache_value);
+			$this->EE->caching_library->set_cache($cache_key, $cache_value, Yql::CACHE_GROUP);
 		}
 
 		if (empty($results)) {
 			return $this->EE->TMPL->no_results();
 		}
 
-		// Parse {results path="element.table[2].element2.array[0]"} tags
-		if (preg_match_all("/{\s*results\s+path=(.*?)}/", $this->EE->TMPL->tagdata, $matches)) {
-			foreach($matches[0] as $index => $match) {
-				$this->EE->TMPL->tagdata = str_replace($match, 
-					$this->_traverse_array($results, 
-						trim($matches[1][$index], '\'"')
-					),
-					$this->EE->TMPL->tagdata
-				);
-			}
-		}
-
 		// Parse template
-		return $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, array($results));
+		return $this->_parse_results(array($results), $this->EE->TMPL->tagdata);
 
 	}
 
-	function variable_to_html($variable) {
-	    if ($variable === true) {
-	        return 'true';
-	    } else if ($variable === false) {
-	        return 'false';
-	    } else if ($variable === null) {
-	        return 'null';
-	    } else if (is_array($variable)) {
-	        $html = "<table border=\"1\">\n";
-	        $html .= "<thead><tr><td><b>KEY</b></td><td><b>VALUE</b></td></tr></thead>\n";
-	        $html .= "<tbody>\n";
-	        foreach ($variable as $key => $value) {
-	            $value = $this->variable_to_html($value);
-	            $html .= "<tr><td>$key</td><td>$value</td></tr>\n";
-	        }
-	        $html .= "</tbody>\n";
-	        $html .= "</table>";
-	        return $html;
-	    } else {
-	        return strval($variable);
-	    }
+	private function _parse_results($results, $tagdata) {
+
+		// Parse {results path="element.table[2].element2.array[0]"} tags
+		if (preg_match_all("/{\s*results\s+path=(.*?)}/", $tagdata, $matches)) {
+			foreach($matches[0] as $index => $match) {
+				foreach($results as $result) {
+					$tagdata = str_replace($match, 
+						$this->_traverse_array($result, 
+							trim($matches[1][$index], '\'"')
+						),
+						$tagdata
+					);
+				}
+			}
+		}
+
+		return $this->EE->TMPL->parse_variables($tagdata, $results);
+
 	}
 
 	private function _traverse_array(&$array, $path) {
