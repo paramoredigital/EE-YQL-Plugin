@@ -36,6 +36,11 @@ $plugin_info = array(
 
 class Yql {
 
+	/**
+	 * The EE cache group
+	 * @param string
+	 * @author Jesse Bunch
+	*/
 	const CACHE_GROUP = 'ee_yql';
 
 	/**
@@ -111,6 +116,13 @@ class Yql {
 
 	}
 
+	/**
+	 * Parses the YQL results
+	 * @param $results array Array of results to parse
+	 * @param $tagdata string The template code to parse
+	 * @return string
+	 * @author Jesse Bunch
+	*/
 	private function _parse_results($results, $tagdata) {
 
 		// Parse {results path="element.table[2].element2.array[0]"} tags
@@ -131,6 +143,14 @@ class Yql {
 
 	}
 
+	/**
+	 * Recursively traverses an array, returning 
+	 * the value specified by the dot notated path
+	 * @param $array array The array to traverse
+	 * @param #path string The dot notated path to return (ie results.item.forecast.temperature)
+	 * @return mixed
+	 * @author Jesse Bunch
+	*/
 	private function _traverse_array(&$array, $path) {
 		
 		$next_path = $path;
