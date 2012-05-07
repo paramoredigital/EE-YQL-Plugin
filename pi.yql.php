@@ -148,7 +148,11 @@ class Yql {
 				}
 			}
 		}
+
+		// Make sure all arrays are indexed arrays
+		$results = $this->_force_array($results);
 		
+		// Parse away!
 		return $this->EE->TMPL->parse_variables($tagdata, $results);
 
 	}
@@ -222,6 +226,54 @@ class Yql {
 		return $colon_params;
 
 	}
+
+	/**
+	 * Force Array
+	 *
+	 * Take a totally mixed item and parse it into an array compatible with EE's Template library
+	 * 
+	 * Taken from Phil Sturgeon's REST plugin
+	 *
+	 * @access	private
+	 * @param	mixed
+	 * @return	string
+	 */
+	private function _force_array($var, $level = 1) {
+
+		if (is_object($var)) {
+			$var = (array) $var;
+		}
+
+		if ($level == 1 && ! isset($var[0])) {
+			$var = array($var);
+		}
+
+		if (is_array($var)) {
+
+			// Make sure everything else is array or single value
+			foreach($var as $index => &$child) {
+				$child = self::_force_array($child, $level + 1);
+
+				if (is_object($child)) {
+					$child = (array) $child;
+				}
+
+				// Format dates to unix timestamps
+				elseif (isset($this->EE->TMPL->date_vars[$index]) and ! is_numeric($child)) {
+					$child = strtotime($child);
+				}
+
+				// Format for EE syntax looping
+				if (is_array($child) && ! is_int($index) && ! isset($child[0])) {
+					$child = array($child);
+				}
+
+			}
+
+		}
+
+		return $var;
+	}
 	
 	/**
 	 * Plugin usage
@@ -230,8 +282,7 @@ class Yql {
 	public static function usage() {
 		ob_start();
 ?>
-
- Since you did not provide instructions on the form, make sure to put plugin documentation here.
+See the README at github for usage instructions.
 <?php
 		$buffer = ob_get_contents();
 		ob_end_clean();
