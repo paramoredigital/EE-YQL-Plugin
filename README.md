@@ -17,6 +17,15 @@ The YQL plugin will accept the following parameters:
 `debug="no"`
 >Optional. If set to "yes" the YQL plugin will dump useful debugging information and exit.
 
+## Variables and Conditionals
+The YQL plugin will parse your results into single variables and variable pairs. Along with those, the YQL plugin supports:
+
+`{results path="array_one.array_two.array_three.string_value"}`
+>See the example using the results variable below.
+
+`{if no_results}{/if}`
+>Parsed if the YQL result was null or an error occurred.
+
 ## Examples
 The YQL module is meant to help you quickly consume RESTful services from your ExpresionEngine templates. Here are a few examples of how it works.
 
