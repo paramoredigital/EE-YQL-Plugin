@@ -96,7 +96,13 @@ class Yql {
 				}
 
 				$cached_results = unserialize($cached_results);
+
+				if (empty($cached_results)) {
+					return $this->EE->TMPL->no_results();
+				}
+
 				return $this->_parse_results(array($cached_results), $this->EE->TMPL->tagdata);
+				
 			}
 
 		}
