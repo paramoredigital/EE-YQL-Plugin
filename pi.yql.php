@@ -102,7 +102,7 @@ class Yql {
 				}
 
 				return $this->_parse_results(array($cached_results), $this->EE->TMPL->tagdata);
-				
+
 			}
 
 		}
@@ -112,7 +112,8 @@ class Yql {
 		$results = $this->EE->yql_library->run_query($sql, $params);
 
 		// Set the cache
-		if ($cache_timeout > 0) {
+		if ($cache_timeout > 0
+			&& !empty($results)) {
 			$this->EE->load->library('caching_library');
 			$cache_value = serialize($results);
 			$this->EE->caching_library->set_cache($cache_key, $cache_value, Yql::CACHE_GROUP);
