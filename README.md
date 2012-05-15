@@ -14,6 +14,9 @@ The YQL plugin will accept the following parameters:
 `param:key="value"`
 >Optional. Allows you to use variable substitution in your YQL queries. See: http://developer.yahoo.com/yql/guide/var_substitution.html
 
+`prefix="no"`
+>Optional. If set to "yes" the YQL plugin will apply a heirarchical prefix to all nested variable pairs in order to prevent variable name conflicting in the ExpressionEngine template parser. See the examples section for an example.
+
 `debug="no"`
 >Optional. If set to "yes" the YQL plugin will dump useful debugging information and exit.
 
@@ -93,6 +96,86 @@ You may take advantage of YQL's variable substitution feature using the YQL plug
 	Joelton is a Suburb
 	Goodlettsville is a Town
 	Hendersonville is a Town
+
+#### Using Prefixing to Avoid Variable Conflicts
+Due to the way ExpressionEngine parses your templates, there is a possibility of variable conflicts in your nested variable pairs. This settings prefixes all your nested variables in an effort to thwart this behavior. Here's a thread illustrating my frustration with this: http://expressionengine.com/forums/viewthread/217221/
+
+The following example pulls in a user's latest Google+ activity.
+
+##### Code Sample
+
+	{exp:yql:query
+		sql="select *
+			from json 
+			where url=@json_url"
+		param:json_url="https://www.googleapis.com/plus/v1/people/115547225498913894217/activities/public?alt=json&maxResults=10&fields=items(object(attachments%2Fimage%2Ccontent%2Curl))&pp=1&key=YOUR_API_KEY"
+		cache_timeout="300"
+		prefix="yes"
+	}
+
+		{if no_results}
+			Sorry, no Google+ activity is available at this time.
+		{/if}
+		
+		{json}
+
+			{json:items}
+
+				{json:items:object}
+
+					<article class="clearfix">
+						
+						{!-- 
+							EE Parsing the below into an empty string
+							tells us that there are attachments. If there
+							were none, EE would output the raw contents
+							of these variable pairs. Yuck.
+						 --}
+						{if "{json:items:object:attachments}{/json:items:object:attachments}" == ""}
+							{json:items:object:attachments}
+								{json:items:object:attachments:image}
+									{if json:items:object:attachments:image:url}
+										<img src="{json:items:object:attachments:image:url}" 
+											alt="{json:items:object:attachments:image:title} Photo" class="left" width="185" height="138">
+									{if:else}
+										<img src="/images/site/blog-no-image.jpg" alt="Image" class="left">
+									{/if}
+								{/json:items:object:attachments:image}
+							{/json:items:object:attachments}
+						{if:else}
+							<img src="/images/site/blog-no-image.jpg" alt="Image" class="left">
+						{/if}
+						
+						<p>
+							{if json:items:object:content}
+								{json:items:object:content}<br>
+							{/if}
+
+							<a href="{json:items:object:url}" target="_blank" class="read-more">View Post</a>
+						</p>
+
+					</article>
+				{/json:items:object}
+
+			{/json:items}
+
+		{/json}
+
+	{/exp:yql:query}
+
+##### Result
+
+	<article class="clearfix">
+		<a href="/explore/blog/dont-miss-out/">
+			<img src="/images/site/blog-no-image.jpg" alt="Image" class="left">
+		</a>
+		<h3><a href="/explore/blog/dont-miss-out/">Don&#8217;t Miss Out!</a></h3>
+		<p>
+			Thank you to everyone who came out over the weekend to celebrate with us! We hope you had a wonderful Easter and took advantage of the gorgeous&hellip;
+			<br>
+			<a class="read-more" href="/explore/blog/dont-miss-out/">Read More</a>
+		</p>
+	</article>
 
 #### Traversing Results with Dot Notation
 Sometimes YQL can return quite a heirarchy of results. Using EE's native template parser to pull out buried values can be cumbersome so you may use a special `{results path=""}` single variable to pull out results using dot notation.
