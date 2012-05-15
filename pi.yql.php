@@ -71,6 +71,7 @@ class Yql {
 		$cache_timeout = $this->EE->TMPL->fetch_param('cache_timeout', 0);
 		$debug = $this->EE->TMPL->fetch_param('debug', 'no');
 		$params = $this->_fetch_colon_params('param');
+		$prefix = $this->EE->TMPL->fetch_param('prefix', 'no');
 		
 		// No SQL, no results
 		if (empty($sql)) {
@@ -101,7 +102,7 @@ class Yql {
 					return $this->EE->TMPL->no_results();
 				}
 
-				return $this->_parse_results(array($cached_results), $this->EE->TMPL->tagdata);
+				return $this->_parse_results(array($cached_results), $this->EE->TMPL->tagdata, ($prefix == 'yes'));
 
 			}
 
@@ -129,7 +130,7 @@ class Yql {
 		}
 
 		// Parse template
-		return $this->_parse_results(array($results), $this->EE->TMPL->tagdata);
+		return $this->_parse_results(array($results), $this->EE->TMPL->tagdata, ($prefix == 'yes'));
 
 	}
 
@@ -137,10 +138,11 @@ class Yql {
 	 * Parses the YQL results
 	 * @param $results array Array of results to parse
 	 * @param $tagdata string The template code to parse
+	 * @param $prefix bool Should we prefix all vars?
 	 * @return string
 	 * @author Jesse Bunch
 	*/
-	private function _parse_results($results, $tagdata) {
+	private function _parse_results($results, $tagdata, $prefix) {
 
 		// Parse {results path="element.table[2].element2.array[0]"} tags
 		if (preg_match_all("/{\s*results\s+path=(.*?)}/", $tagdata, $matches)) {
@@ -154,6 +156,11 @@ class Yql {
 					);
 				}
 			}
+		}
+
+		// Prefix?
+		if ($prefix) {
+			$results = $this->_prefix_array($results);
 		}
 
 		// Make sure all arrays are indexed arrays
@@ -231,6 +238,41 @@ class Yql {
 		}
 
 		return $colon_params;
+
+	}
+
+	/**
+	 * Prefixes every variable under the first level
+	 * to prevent conflicts in EE's template parser
+	 * @param $array array 
+	 * @param $level int
+	 * @author Jesse Bunch
+	*/
+	private function _prefix_array($array, $prefix = '', $level = 1) {
+
+		$new_array = array();
+		
+		foreach($array as $key => $value) {
+			
+			if (empty($prefix)) {
+				$actual_prefix = $key;
+			} else {
+				$actual_prefix = $prefix.':'.$key;
+			}
+			
+			if (is_array($value)) {
+				if (is_int($key)) {
+					$new_array[$key] = $this->_prefix_array($value, $prefix, $level + 1);;
+				} else {
+					$new_array[$actual_prefix] = $this->_prefix_array($value, $actual_prefix, $level + 1);
+				}
+			} else {
+				$new_array[$actual_prefix] = $value;
+			}
+
+		}
+
+		return $new_array;
 
 	}
 
