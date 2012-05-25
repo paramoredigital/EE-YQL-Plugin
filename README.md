@@ -98,7 +98,7 @@ You may take advantage of YQL's variable substitution feature using the YQL plug
 	Hendersonville is a Town
 
 #### Using Prefixing to Avoid Variable Conflicts
-Due to the way ExpressionEngine parses your templates, there is a possibility of variable conflicts in your nested variable pairs. This settings prefixes all your nested variables in an effort to thwart this behavior. Here's a thread illustrating my frustration with this: http://expressionengine.com/forums/viewthread/217221/
+Due to the way ExpressionEngine parses your templates, there is a possibility of variable conflicts in your nested variable pairs. This setting prefixes all your nested variables in an effort to thwart this behavior. Here's a thread illustrating my frustration with this: http://expressionengine.com/forums/viewthread/217221/
 
 The following example pulls in a user's latest Google+ activity.
 
