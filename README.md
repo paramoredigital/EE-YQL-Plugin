@@ -217,6 +217,7 @@ The following example scrapes the AM and PM tide levels from an HTML table on th
 ## Changelog
 
 * 1.0 (May 7, 2012) - First release
+* 1.1 (May 20, 2012) - Added support for variable prefixing to prevent variable conflicts in nested variable pairs.
 
 ## Support
 If you find a bug, please create a Github issue. Be sure to include your template tags and the expected result. If you think you can make the EE YQL plugin better, feel free to submit a pull request.
