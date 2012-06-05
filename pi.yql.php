@@ -85,8 +85,8 @@ class Yql {
 		// Fetch Cache
 		if ($cache_timeout > 0) {
 			
-			$this->EE->load->library('caching_library');
-			$cached_results = $this->EE->caching_library->read_cache($cache_key, Yql::CACHE_GROUP, $cache_timeout);
+			$this->EE->load->library('yql_caching_library');
+			$cached_results = $this->EE->yql_caching_library->read_cache($cache_key, Yql::CACHE_GROUP, $cache_timeout);
 
 			// Find cache?
 			if (FALSE !== $cached_results) {
@@ -115,9 +115,9 @@ class Yql {
 		// Set the cache
 		if ($cache_timeout > 0
 			&& !empty($results)) {
-			$this->EE->load->library('caching_library');
+			$this->EE->load->library('yql_caching_library', NULL, 'yql_caching_library');
 			$cache_value = serialize($results);
-			$this->EE->caching_library->set_cache($cache_key, $cache_value, Yql::CACHE_GROUP);
+			$this->EE->yql_caching_library->set_cache($cache_key, $cache_value, Yql::CACHE_GROUP);
 		}
 
 		if ($debug == 'yes') {

@@ -24,7 +24,7 @@
  * @link		http://paramore.is/
  */
 
-class Caching_library {
+class Yql_caching_library {
     
 	/**
 	 * Constructor
@@ -111,5 +111,5 @@ class Caching_library {
 }
 
 
-/* End of file caching_library.php */
-/* Location: /system/expressionengine/third_party/yql/libraries/caching_library.php */
+/* End of file yql_caching_library.php */
+/* Location: /system/expressionengine/third_party/yql/libraries/yql_caching_library.php */
